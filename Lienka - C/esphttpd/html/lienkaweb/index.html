@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lienka</title>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<script language="javascript" type="text/javascript">
+
+    //var host = "lienka.local"; //"192.168.0.106
+    //var host = "192.168.0.106"; //"192.168.0.106
+    //var host = "192.168.0.113"; //"192.168.0.106
+    var host = "192.168.43.216"; //"192.168.0.106
+    var wsUri = "ws://"+host+"/websocket/ws.cgi";
+    var output;
+    var websocket;
+    var closeWebSocket = false;
+
+    function changeClose() {
+        closeWebSocket = !closeWebSocket;
+    }
+
+    function init()
+    {
+        output = document.getElementById("output");
+        testWebSocket();
+    }
+
+    function testWebSocket()
+    {
+        websocket = new WebSocket(wsUri);
+        websocket.onopen = function(evt) { onOpen(evt) };
+        websocket.onclose = function(evt) { onClose(evt) };
+        websocket.onmessage = function(evt) { onMessage(evt) };
+        websocket.onerror = function(evt) { onError(evt) };
+    }
+
+    function onOpen(evt)
+    {
+        writeToScreen("CONNECTED");
+        doSend("WebSocket rocks");
+    }
+
+    function onClose(evt)
+    {
+        writeToScreen("DISCONNECTED");
+        if (!closeWebSocket){
+            testWebSocket();
+        }
+    }
+
+    function onMessage(evt)
+    {
+        writeToScreen('<span style="color: blue;">RECEIVED: ' + evt.data+'</span>');
+//    websocket.close();
+    }
+
+    function onError(evt)
+    {
+        writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data);
+    }
+
+    function doSend(message)
+    {
+        writeToScreen("SENT: " + message);
+        var readyState = websocket.readyState;
+        writeToScreen("ReadyState: " + readyState);
+        websocket.send(message);
+    }
+
+    function writeToScreen(message)
+    {
+        var pre = document.createElement("p");
+        pre.style.wordWrap = "break-word";
+        pre.innerHTML = message;
+        output.insertBefore(pre, output.firstChild);
+        //output.appendChild(pre);
+    }
+
+    window.addEventListener("load", init, false);
+
+    function goBack(){
+        window.history.back();
+    }
+
+</script>
+<body>
+<div id="main">
+
+    <!--<form method="post" action="http://192.168.0.104/led.cgi">-->
+
+        <!--<input type="submit" name="led" value="50">-->
+
+
+    <div id="controller">
+        <button onclick="goBack()">Go Back</button>
+        <button onclick="init()">Init Websocket</button>
+        <p>Actual direction: <span id="dir"></span></p>
+        
+        <div class="row">
+            <div class="col"></div>
+            <div class="col" ><input type="submit" name="led" value="4" class="inputDir" id="left" onclick="doSend('04')"></div>
+            <div class="col"></div>
+        </div>
+        <div class="row">
+            <div class="col" ><input type="submit" name="led" value="8" class="inputDir" id="up" onclick="doSend('08')"></div>
+            <div class="col"></div>
+            <div class="col" ><input type="submit" name="led" value="2" class="inputDir" id="down" onclick="doSend('02')"></div>
+        </div>
+        <div class="row">
+            <div class="col"></div>
+            <div class="col" ><input type="submit" name="led" value="6" class="inputDir" id="right" onclick="doSend('06')"></div>
+            <div class="col"></div>
+        </div>
+    </div>
+
+    <!--</form>-->
+
+    <!--<div id="wifiSettings">
+        <p id="test"></p>
+        <form>
+            <div id="availableNetworks">
+
+            </div>
+
+            <input type="password" >
+            <input type="submit" >
+
+        </form>
+
+    </div>-->
+    <button onclick="doSend('01')">START</button>
+    <button onclick="doSend('00')">CLEAR</button>
+    <button onclick="doSend('03')">SEND FULL PROGRAM</button>
+    </br>
+    <button onclick="doSend('18')">FORWARD</button>
+    <button onclick="doSend('14')">LEFT</button>
+    <button onclick="doSend('16')">RIGHT</button>
+    <button onclick="doSend('12')">BACK</button>
+    <button onclick="doSend('10')">STOP</button>
+
+    <div id="output"></div>
+</div>
+</body>
+<script src="script.js"></script>
+</html>
